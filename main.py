@@ -1,25 +1,43 @@
-def adicionar_tarefa(tarefas, descricao):
-    lista_tarefas = {"descricao": descricao, "concluida": False}
-    tarefas.append(lista_tarefas)
+import sqlite3
+
+conn = sqlite3.connect("banco_tarefas.db")
+cursor = conn.cursor()
+
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS tarefas(
+      id INTEGER PRIMARY KEY,
+      descricao TEXT,
+      concluida BOOLEAN
+    )
+''')
+
+conn.commit()
+
+def adicionar_tarefa(descricao):
+    cursor.execute("INSERT INTO tarefas(descricao, concluida) VALUES(?,?)", (descricao, False))
+    conn.commit()
 
 
-def listar_tarefas(tarefas):
-    for lista in tarefas:
-        if lista["concluida"] == False:
-            print(lista["descricao"], "[ ]")
+def listar_tarefas():
+    cursor.execute("SELECT * FROM tarefas")
+    resultado = cursor.fetchall()
+    for lista in resultado:
+        if lista[2] == False:
+            print(lista[1], "[ ]")
         else:
-            print(lista["descricao"], "[X]")
+            print(lista[1], "[X]")
 
 
-def concluir_tarefas(tarefas, indice):
-    tarefas[indice]["concluida"] = True
+def concluir_tarefas(id):
+    cursor.execute("UPDATE tarefas SET concluida =? WHERE id=?",(True, id))
+    conn.commit()
 
 
-def remover_tarefas(tarefas, indice):
-    tarefas.pop(indice)
+def remover_tarefas(id):
+    cursor.execute("DELETE FROM tarefas WHERE id=?", (id,))
+    conn.commit()
 
 def menu():
-    tarefas =[]
     while True:
         escolha = input(" \n"
                     "1 - Adicionar tarefa \n"
@@ -31,18 +49,18 @@ def menu():
         print(" ")
         if escolha == "1":
             adicionar = input("Adicione as tarefas: ") 
-            adicionar_tarefa(tarefas, adicionar)
+            adicionar_tarefa(descricao=adicionar)
 
         elif escolha == "2":
-            listar_tarefas(tarefas)
+            listar_tarefas()
 
         elif escolha == "3":
-            concluir = input("Escolha o número da tarefa: ")
-            concluir_tarefas(tarefas, int(concluir))
+            concluir = input("Qual tarefa quer concluir: ")
+            concluir_tarefas(int(concluir))
 
         elif escolha == "4":
-            remover = input("Escolha o número da tarefa: ")
-            remover_tarefas(tarefas, int(remover))
+            remover = input("Qual tarefas quer remover: ")
+            remover_tarefas(int(remover))
 
         elif escolha == "5":
             break
