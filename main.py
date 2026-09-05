@@ -1,4 +1,5 @@
 import sqlite3
+import tkinter as tk
 
 conn = sqlite3.connect("banco_tarefas.db")
 cursor = conn.cursor()
@@ -69,7 +70,69 @@ def menu():
             print("Escolha somente um dos números informados.")
         
 
-#Testes
+#GUI
+janela = tk.Tk()
+janela.title("Gerenciador de Tarefas")
+janela.geometry("400x500")
 
-menu()
+titulo = tk.Label(janela, text="Gerenciador de Tarefas")
+titulo.pack()
+
+desc_tarefa = tk.Entry(janela)
+desc_tarefa.pack()
+
+att_tarefas = tk.Listbox(janela)
+att_tarefas.pack()
+
+lista_ids = []
+
+
+def clicar_adicionar():
+    descricao = desc_tarefa.get()
+    adicionar_tarefa(descricao)
+    atualizar_tarefas()
+
+
+def atualizar_tarefas():
+    lista_ids.clear()
+    ids_tarefas = lista_ids
+    att_tarefas.delete(0, tk.END)
+    cursor.execute("SELECT * FROM tarefas")
+    atualizar = cursor.fetchall()
+    for a in atualizar:
+        if a[2] == False:
+            ids_tarefas.append(a[0])
+            att_tarefas.insert(tk.END, f"{a[1]}: [ ]")
+        else:
+            ids_tarefas.append(a[0])
+            att_tarefas.insert(tk.END, f"{a[1]}: [X]")
+
+def clicar_concluir():
+    concluir = att_tarefas.curselection()
+    posicao = concluir[0]
+    id_real = lista_ids[posicao]
+    concluir_tarefas(id_real)
+    atualizar_tarefas()
+
+def clicar_remover():
+    remover = att_tarefas.curselection()
+    p_remover = remover[0]
+    id_real = lista_ids[p_remover]
+    remover_tarefas(id_real)
+    atualizar_tarefas()
+
+
+
+btn_adicionar = tk.Button(janela, text="Adicionar Tarefa", command=clicar_adicionar)
+btn_adicionar.pack()
+
+btn_concluir = tk.Button(janela, text="Concluir Tarefa", command= clicar_concluir)
+btn_concluir.pack()
+
+btn_remover = tk.Button(janela, text="Remover Tarefa", command= clicar_remover)
+btn_remover.pack()
     
+atualizar_tarefas()        
+    
+
+janela.mainloop()
