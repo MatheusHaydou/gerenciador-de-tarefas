@@ -1,5 +1,6 @@
 import sqlite3
 import tkinter as tk
+from plyer import notification
 
 conn = sqlite3.connect("banco_tarefas.db")
 cursor = conn.cursor()
@@ -91,6 +92,11 @@ def clicar_adicionar():
     descricao = desc_tarefa.get()
     adicionar_tarefa(descricao)
     atualizar_tarefas()
+    notification.notify(
+        title = "Tarefa Adicionada",
+        message = descricao,
+        timeout = 5
+    )
 
 
 def atualizar_tarefas():
@@ -106,6 +112,7 @@ def atualizar_tarefas():
         else:
             ids_tarefas.append(a[0])
             att_tarefas.insert(tk.END, f"{a[1]}: [X]")
+    
 
 def clicar_concluir():
     concluir = att_tarefas.curselection()
@@ -121,6 +128,20 @@ def clicar_remover():
     remover_tarefas(id_real)
     atualizar_tarefas()
 
+def notificacao_pendentes():
+    cursor.execute("SELECT * FROM tarefas")
+    tarefas = cursor.fetchall()
+    pendentes = []
+    for p in tarefas:
+        if p[2] == False:
+                pendentes.append(p[1])
+    tarefas_pendentes = "\n".join(pendentes)
+    notification.notify(
+            title = "Tarefas Pendentes",
+            message = tarefas_pendentes,
+            timeout = 5
+        )
+
 
 
 btn_adicionar = tk.Button(janela, text="Adicionar Tarefa", command=clicar_adicionar)
@@ -133,6 +154,7 @@ btn_remover = tk.Button(janela, text="Remover Tarefa", command= clicar_remover)
 btn_remover.pack()
     
 atualizar_tarefas()        
-    
+notificacao_pendentes()
 
 janela.mainloop()
+
