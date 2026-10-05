@@ -34,15 +34,14 @@ def atualizar_tarefas():
     lista_ids.clear()
     ids_tarefas = lista_ids
     att_tarefas.delete(0, tk.END)
-    cursor.execute("SELECT * FROM tarefas")
-    atualizar = cursor.fetchall()
-    for a in atualizar:
-        if a[2] == False:
-            ids_tarefas.append(a[0])
-            att_tarefas.insert(tk.END, f"{a[1]}: [ ]")
+    tarefas_registradas = listar_tarefas()
+    for a in tarefas_registradas:
+        if a.concluida == False:
+            ids_tarefas.append(a.id)
+            att_tarefas.insert(tk.END, f"{a.descricao}: [ ]")
         else:
-            ids_tarefas.append(a[0])
-            att_tarefas.insert(tk.END, f"{a[1]}: [X]")
+            ids_tarefas.append(a.id)
+            att_tarefas.insert(tk.END, f"{a.descricao}: [X]")
     
 
 def clicar_concluir():

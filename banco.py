@@ -1,4 +1,5 @@
 import sqlite3
+from tarefa import Tarefa
 
 conn = sqlite3.connect("banco_tarefas.db")
 cursor = conn.cursor()
@@ -21,11 +22,12 @@ def adicionar_tarefa(descricao):
 def listar_tarefas():
     cursor.execute("SELECT * FROM tarefas")
     resultado = cursor.fetchall()
+    tarefas_listadas = []
     for lista in resultado:
-        if lista[2] == False:
-            print(lista[1], "[ ]")
-        else:
-            print(lista[1], "[X]")
+        nova_tarefa = Tarefa(lista[0], lista[1], lista[2])
+        tarefas_listadas.append(nova_tarefa)
+    return tarefas_listadas
+        
 
 
 def concluir_tarefas(id):
